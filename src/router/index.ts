@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/Login.vue'
 import Home from '@/views/Home.vue'
+import PaperSelection from '@/views/PaperSelection.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,6 +16,12 @@ const router = createRouter({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/paper-selection',
+      name: 'PaperSelection',
+      component: PaperSelection,
+      meta: { requiresAuth: true }
     }
   ],
 })
