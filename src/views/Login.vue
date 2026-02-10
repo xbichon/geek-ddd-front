@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { login, getCaptcha } from '@/api/login'
+
+const router = useRouter()
 
 const username = ref('')
 const password = ref('')
@@ -27,7 +30,7 @@ const onSubmit = async () => {
 
   if (result.code === 200) {
     localStorage.setItem('token', result.data)
-    alert('登录成功')
+    router.push('/')
   } else {
     alert(result.message || '登录失败')
     fetchCaptcha()
