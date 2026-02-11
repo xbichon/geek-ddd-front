@@ -198,40 +198,46 @@ onMounted(async () => {
         加载中...
       </van-loading>
       
-      <div v-else>
+      <div v-else class="main-content">
         <!-- 题目列表区域 -->
         <div class="papers-section">
-          <div 
-            v-for="paper in papers"
-            :key="paper.id"
-            class="paper-item"
-            :class="{
-              'selected': selectedPaperId === paper.id,
-              'disabled': paper.currentSelections >= paper.maxSelections
-            }"
-            @click="selectPaper(paper)"
-          >
-            <div class="paper-info">
-              <div class="paper-title">{{ paper.title }}</div>
-              <div class="paper-stats">
-                <van-tag
-                  :class="{ 'tag-full': paper.currentSelections >= paper.maxSelections }"
-                  size="medium"
-                  class="count-tag"
-                >
-                  {{ paper.currentSelections }}/{{ paper.maxSelections }} 人
-                </van-tag>
+          <div class="section-title papers-title">
+            <van-icon name="description" />
+            <span>选题方向</span>
+          </div>
+          <div class="papers-list">
+            <div
+              v-for="paper in papers"
+              :key="paper.id"
+              class="paper-item"
+              :class="{
+                'selected': selectedPaperId === paper.id,
+                'disabled': paper.currentSelections >= paper.maxSelections
+              }"
+              @click="selectPaper(paper)"
+            >
+              <div class="paper-info">
+                <div class="paper-title">{{ paper.title }}</div>
+                <div class="paper-stats">
+                  <van-tag
+                    :class="{ 'tag-full': paper.currentSelections >= paper.maxSelections }"
+                    size="medium"
+                    class="count-tag"
+                  >
+                    {{ paper.currentSelections }}/{{ paper.maxSelections }} 人
+                  </van-tag>
+                </div>
               </div>
+              <van-radio
+                :name="paper.id"
+                :model-value="selectedPaperId"
+                @click.stop
+                class="paper-radio"
+              />
             </div>
-            <van-radio 
-              :name="paper.id" 
-              :model-value="selectedPaperId"
-              @click.stop
-              class="paper-radio"
-            />
           </div>
         </div>
-        
+
         <!-- 成果形式选择 -->
         <div v-if="selectedPaper" class="achievement-section">
           <div class="section-title">
@@ -251,7 +257,7 @@ onMounted(async () => {
             </van-button>
           </div>
         </div>
-        
+
         <!-- 提交按钮 -->
         <div class="submit-section">
           <van-button
@@ -277,7 +283,18 @@ onMounted(async () => {
 }
 
 .content {
-  padding: 60px 12px 80px;
+  padding: 60px 12px 12px;
+  height: calc(100vh - 46px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .loading {
@@ -285,19 +302,33 @@ onMounted(async () => {
   padding: 40px;
 }
 
+.papers-title {
+  padding: 12px 16px 8px;
+  margin-bottom: 0;
+}
+
 .papers-section {
   background: white;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.papers-list {
+  overflow-y: auto;
+  flex: 1;
 }
 
 .paper-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -360,9 +391,10 @@ onMounted(async () => {
 .achievement-section {
   background: white;
   border-radius: 16px;
-  padding: 20px 20px;
+  padding: 16px 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .section-title {
@@ -371,7 +403,7 @@ onMounted(async () => {
   font-size: 18px;
   font-weight: 600;
   color: #323233;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .section-title .van-icon {
@@ -386,10 +418,9 @@ onMounted(async () => {
 }
 
 .submit-section {
-  position: fixed;
-  bottom: 20px;
-  left: 12px;
-  right: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+  flex-shrink: 0;
 }
 
 :deep(.van-nav-bar) {
