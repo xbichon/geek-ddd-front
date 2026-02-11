@@ -2,15 +2,62 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
+import { getUnselectedStudents, type Student } from '@/api/internship'
 
 const router = useRouter()
 
 // 步骤控制
 const currentStep = ref(1)
 
+// 学生列表
+const studentList = ref<Student[]>([])
+const loading = ref(false)
+
+// 选中的队友（最多5人）
+const selectedTeammates = ref<number[]>([])
+
+// 获取未选择的学生列表
+const fetchUnselectedStudents = async () => {
+  loading.value = true
+  try {
+    const res = await getUnselectedStudents()
+    if (res.code === 200) {
+      studentList.value = res.data
+    } else {
+      showToast(res.message || '获取学生列表失败')
+    }
+  } catch (error) {
+    showToast('获取学生列表失败')
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 切换选择状态
+const toggleSelection = (studentId: number) => {
+  const index = selectedTeammates.value.indexOf(studentId)
+  if (index > -1) {
+    // 已选中，取消选择
+    selectedTeammates.value.splice(index, 1)
+  } else {
+    // 未选中，检查是否超过5人
+    if (selectedTeammates.value.length >= 5) {
+      showToast('最多只能选择5个队友')
+      return
+    }
+    selectedTeammates.value.push(studentId)
+  }
+}
+
+// 判断是否已选中
+const isSelected = (studentId: number) => {
+  return selectedTeammates.value.includes(studentId)
+}
+
 // 页面初始化逻辑
 onMounted(() => {
-  console.log('组队选题页面已加载')
+  fetchUnselectedStudents()
 })
 
 // 下一步
@@ -55,11 +102,30 @@ const goBack = () => {
       <!-- 第一步：选择队友 -->
       <div v-if="currentStep === 1" class="step-content">
         <van-cell-group inset>
-          <van-cell title="队友选择区域" icon="friends-o">
+          <van-cell title="选择队友" icon="friends-o">
             <template #label>
-              <div class="placeholder-text">请选择您的队友</div>
+              <div class="selection-hint">已选择 {{ selectedTeammates.length }}/5 人</div>
             </template>
           </van-cell>
+          <div v-if="loading" class="loading-text">加载中...</div>
+          <div v-else-if="studentList.length === 0" class="placeholder-text">暂无可选择的学生</div>
+          <van-checkbox-group v-model="selectedTeammates" max="5">
+            <van-cell
+              v-for="student in studentList"
+              :key="student.id"
+              :title="student.name"
+              clickable
+              @click="toggleSelection(student.id)"
+            >
+              <template #right-icon>
+                <van-checkbox
+                  :name="student.id"
+                  shape="square"
+                  @click.stop
+                />
+              </template>
+            </van-cell>
+          </van-checkbox-group>
         </van-cell-group>
         
         <div class="actions">
@@ -144,6 +210,19 @@ const goBack = () => {
   font-size: 14px;
   padding: 40px 0;
   text-align: center;
+}
+
+.loading-text {
+  color: #999;
+  font-size: 14px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.selection-hint {
+  color: #666;
+  font-size: 13px;
+  padding: 8px 0;
 }
 
 .actions {
