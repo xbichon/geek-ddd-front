@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/Login.vue'
 import Home from '@/views/Home.vue'
 import PaperSelection from '@/views/PaperSelection.vue'
-import SelectionSuccess from '@/views/SelectionSuccess.vue'
+import Success from '@/views/Success.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -25,9 +25,9 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/selection-success',
-      name: 'SelectionSuccess',
-      component: SelectionSuccess,
+      path: '/success',
+      name: 'Success',
+      component: Success,
       meta: { requiresAuth: true }
     }
   ],

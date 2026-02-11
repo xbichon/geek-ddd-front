@@ -72,8 +72,7 @@ const submitSelection = async () => {
     }) as { code: number; message: string }
 
     if (result.code === 200) {
-      alert('选题成功')
-      fetchPapers()
+      router.push('/success')
     } else {
       alert(result.message || '选题失败')
     }
