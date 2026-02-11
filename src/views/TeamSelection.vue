@@ -65,6 +65,33 @@ const getStudentName = (studentId: number): string => {
   return student?.name || ''
 }
 
+// 验证第一步的必填项
+const validateStepOne = (): boolean => {
+  // 检查队伍人数（最少2人）
+  if (selectedTeammates.value.length < 2) {
+    showToast('队伍人数至少需要2人')
+    return false
+  }
+  
+  // 检查组队原因
+  if (!teamReason.value.trim()) {
+    showToast('请输入组队原因')
+    return false
+  }
+  
+  // 检查每个选中成员的职责
+  for (const studentId of selectedTeammates.value) {
+    const role = teammateRoles.value[studentId]?.trim()
+    if (!role) {
+      const studentName = getStudentName(studentId)
+      showToast(`请为 ${studentName} 填写职责`)
+      return false
+    }
+  }
+  
+  return true
+}
+
 // 监听选中队友变化，清理已删除队友的职责（保留第一个用户的职责）
 watch(selectedTeammates, (newVal, oldVal) => {
   // 找出被取消选中的队友
@@ -87,8 +114,9 @@ const fetchUnselectedStudents = async () => {
     if (res.code === 200) {
       studentList.value = res.data
       // 默认选中第一个用户（必选）
-      if (res.data.length > 0 && !selectedTeammates.value.includes(res.data[0].id)) {
-        selectedTeammates.value = [res.data[0].id]
+      const firstStudent = res.data[0]
+      if (res.data.length > 0 && firstStudent && !selectedTeammates.value.includes(firstStudent.id)) {
+        selectedTeammates.value = [firstStudent.id]
       }
     } else {
       showToast(res.message || '获取学生列表失败')
@@ -197,6 +225,10 @@ const submitSelection = async () => {
     showToast('请选择成果形式')
     return
   }
+  if (!teamReason.value.trim()) {
+    showToast('请输入组队原因')
+    return
+  }
 
   const paper = papers.value.find(p => p.id === selectedPaperId.value)
 
@@ -243,6 +275,13 @@ onMounted(() => {
 
 // 下一步
 const nextStep = () => {
+  // 如果是第一步，先进行验证
+  if (currentStep.value === 1) {
+    if (!validateStepOne()) {
+      return // 验证失败，阻止进入下一步
+    }
+  }
+  
   if (currentStep.value < 2) {
     currentStep.value++
     // 进入第二步时获取论文列表
@@ -292,13 +331,15 @@ const goBack = () => {
                 <van-cell
                   v-for="(student, index) in studentList"
                   :key="student.id"
-                  :title="student.name"
                   :class="{ 'first-student-cell': index === 0 }"
                   clickable
                   @click="toggleSelection(student.id)"
                 >
-                  <template #label>
-                    <span v-if="index === 0" class="first-student-tag">必选</span>
+                  <template #title>
+                    <div class="student-title">
+                      <span class="student-name">{{ student.name }}</span>
+                      <span v-if="index === 0" class="first-student-tag">必选</span>
+                    </div>
                   </template>
                   <template #right-icon>
                     <van-checkbox
@@ -325,10 +366,11 @@ const goBack = () => {
                 <van-field
                   v-model="teamReason"
                   type="textarea"
-                  placeholder="请输入组队原因（选填）"
+                  placeholder="请输入组队原因（必填）"
                   rows="2"
                   maxlength="200"
                   show-word-limit
+                  required
                 />
               </div>
               <!-- 动态生成的队友职责 -->
@@ -558,7 +600,13 @@ const goBack = () => {
   background-color: #f7f8fa;
 }
 
-.first-student-cell :deep(.van-cell__title) {
+.student-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-name {
   color: #323233;
   font-weight: 500;
 }
@@ -570,7 +618,7 @@ const goBack = () => {
   color: white;
   font-size: 10px;
   border-radius: 4px;
-  margin-top: 4px;
+  flex-shrink: 0;
 }
 
 .reason-section {
