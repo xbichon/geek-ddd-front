@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/Login.vue'
 import Home from '@/views/Home.vue'
-import PaperSelection from '@/views/PaperSelection.vue'
+import IndividualSelection from '@/views/IndividualSelection.vue'
+import TeamSelection from '@/views/TeamSelection.vue'
 import Success from '@/views/Success.vue'
 
 const router = createRouter({
@@ -19,9 +20,15 @@ const router = createRouter({
       component: Login
     },
     {
-      path: '/paper-selection',
-      name: 'PaperSelection',
-      component: PaperSelection,
+      path: '/individual-selection',
+      name: 'IndividualSelection',
+      component: IndividualSelection,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/team-selection',
+      name: 'TeamSelection',
+      component: TeamSelection,
       meta: { requiresAuth: true }
     },
     {

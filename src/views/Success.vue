@@ -76,10 +76,6 @@ onMounted(() => {
         <span class="value">{{ detail.advisorName }}</span>
       </div>
     </div>
-
-    <button class="back-btn" @click="goToHome">
-      返回首页
-    </button>
   </div>
 </template>
 

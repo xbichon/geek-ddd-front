@@ -19,6 +19,12 @@ interface ThesisResponse {
   message: string
 }
 
+interface HasSelectedResponse {
+  code: number
+  data: boolean
+  message: string
+}
+
 const papers = ref<Paper[]>([])
 const selectedPaperId = ref<number | null>(null)
 const selectedAchievementType = ref<string>('')
@@ -32,6 +38,27 @@ const selectedPaper = computed(() => {
 const achievementTypes = computed(() => {
   return selectedPaper.value?.achievementTypes || []
 })
+
+// 返回首页
+const goBack = () => {
+  router.push('/')
+}
+
+// 检查用户是否已经选题
+const checkHasSelected = async () => {
+  try {
+    const result = await request.get('/internship/thesis-selection/has-selected') as HasSelectedResponse
+    if (result.code === 200 && result.data === true) {
+      // 已经选题，直接跳转到成功页面
+      router.push('/success')
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error('检查选题状态失败:', error)
+    return false
+  }
+}
 
 const fetchPapers = async () => {
   loading.value = true
@@ -81,14 +108,22 @@ const submitSelection = async () => {
   }
 }
 
-onMounted(() => {
-  fetchPapers()
+onMounted(async () => {
+  // 先检查是否已经选题
+  const hasSelected = await checkHasSelected()
+  if (!hasSelected) {
+    // 没有选题才获取论文列表
+    fetchPapers()
+  }
 })
 </script>
 
 <template>
-  <div class="paper-selection-page">
-    <h2>论文选题</h2>
+  <div class="individual-selection-page">
+    <div class="header">
+      <h2>个人选题</h2>
+      <button class="back-btn" @click="goBack">返回</button>
+    </div>
 
     <div v-if="loading" class="loading">加载中...</div>
 
@@ -144,15 +179,39 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.paper-selection-page {
+.individual-selection-page {
   max-width: 600px;
   margin: 0 auto;
   padding: 40px 20px 100px;
   position: relative;
 }
 
-h2 {
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.back-btn {
+  padding: 8px 16px;
+  background-color: #f5f7fa;
+  color: #606266;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #ecf5ff;
+  border-color: #409eff;
+  color: #409eff;
 }
 
 .loading {
