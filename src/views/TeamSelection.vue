@@ -42,11 +42,42 @@ const achievementTypes = computed(() => {
 const studentList = ref<Student[]>([])
 const loading = ref(false)
 
-// 选中的队友（最多5人）
+// 选中的队友（最多5人），默认会包含第一个用户（必选）
 const selectedTeammates = ref<number[]>([])
 
 // 组队原因
 const teamReason = ref('')
+
+// 队友职责映射（key: studentId, value: 职责）
+const teammateRoles = ref<Record<number, string>>({})
+
+// 第一个用户（必选）
+const firstStudent = computed(() => studentList.value[0] || null)
+
+// 判断是否为第一个用户（必选）
+const isFirstStudent = (studentId: number): boolean => {
+  return firstStudent.value?.id === studentId
+}
+
+// 获取学生姓名
+const getStudentName = (studentId: number): string => {
+  const student = studentList.value.find(s => s.id === studentId)
+  return student?.name || ''
+}
+
+// 监听选中队友变化，清理已删除队友的职责（保留第一个用户的职责）
+watch(selectedTeammates, (newVal, oldVal) => {
+  // 找出被取消选中的队友
+  const removedIds = oldVal?.filter(id => !newVal.includes(id)) || []
+  // 删除被取消队友的职责（第一个用户除外）
+  removedIds.forEach(id => {
+    if (!isFirstStudent(id)) {
+      delete teammateRoles.value[id]
+    }
+  })
+})
+
+
 
 // 获取未选择的学生列表
 const fetchUnselectedStudents = async () => {
@@ -55,6 +86,10 @@ const fetchUnselectedStudents = async () => {
     const res = await getUnselectedStudents()
     if (res.code === 200) {
       studentList.value = res.data
+      // 默认选中第一个用户（必选）
+      if (res.data.length > 0 && !selectedTeammates.value.includes(res.data[0].id)) {
+        selectedTeammates.value = [res.data[0].id]
+      }
     } else {
       showToast(res.message || '获取学生列表失败')
     }
@@ -88,6 +123,10 @@ const checkHasSelected = async () => {
 
 // 切换选择状态
 const toggleSelection = (studentId: number) => {
+  // 第一个用户必选，不可取消
+  if (isFirstStudent(studentId)) {
+    return
+  }
   const index = selectedTeammates.value.indexOf(studentId)
   if (index > -1) {
     // 已选中，取消选择
@@ -198,6 +237,7 @@ const submitSelection = async () => {
 // 页面初始化逻辑
 onMounted(() => {
   checkHasSelected()
+  //fetchCurrentUser() // 先获取当前用户信息
   fetchUnselectedStudents()
 })
 
@@ -247,23 +287,29 @@ const goBack = () => {
             <div class="selection-hint">已选择 {{ selectedTeammates.length }}/5 人</div>
             <div class="student-list">
               <van-loading v-if="loading" vertical class="loading">加载中...</van-loading>
-              <div v-else-if="studentList.length === 0" class="placeholder-text">暂无可选择的学生</div>
               <van-checkbox-group v-else v-model="selectedTeammates" max="5">
+                <!-- 学生列表（第一个是必选） -->
                 <van-cell
-                  v-for="student in studentList"
+                  v-for="(student, index) in studentList"
                   :key="student.id"
                   :title="student.name"
+                  :class="{ 'first-student-cell': index === 0 }"
                   clickable
                   @click="toggleSelection(student.id)"
                 >
+                  <template #label>
+                    <span v-if="index === 0" class="first-student-tag">必选</span>
+                  </template>
                   <template #right-icon>
                     <van-checkbox
                       :name="student.id"
                       shape="square"
+                      :disabled="index === 0"
                       @click.stop
                     />
                   </template>
                 </van-cell>
+                <div v-if="studentList.length === 0" class="placeholder-text">暂无可选择的学生</div>
               </van-checkbox-group>
             </div>
           </div>
@@ -274,15 +320,31 @@ const goBack = () => {
               <van-icon name="edit" />
               <span>组队原因</span>
             </div>
-            <div class="reason-input">
-              <van-field
-                v-model="teamReason"
-                type="textarea"
-                placeholder="请输入组队原因（选填）"
-                rows="3"
-                maxlength="200"
-                show-word-limit
-              />
+            <div class="reason-content">
+              <div class="reason-input">
+                <van-field
+                  v-model="teamReason"
+                  type="textarea"
+                  placeholder="请输入组队原因（选填）"
+                  rows="2"
+                  maxlength="200"
+                  show-word-limit
+                />
+              </div>
+              <!-- 动态生成的队友职责 -->
+              <div v-if="selectedTeammates.length > 0" class="roles-section">
+                <div class="roles-title">成员职责分配</div>
+                <div class="roles-list">
+                  <div v-for="studentId in selectedTeammates" :key="studentId" class="role-item">
+                    <span class="role-name">{{ getStudentName(studentId) }}</span>
+                    <van-field
+                      v-model="teammateRoles[studentId]"
+                      placeholder="请输入职责"
+                      class="role-input"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -492,6 +554,25 @@ const goBack = () => {
   min-height: 0;
 }
 
+.first-student-cell {
+  background-color: #f7f8fa;
+}
+
+.first-student-cell :deep(.van-cell__title) {
+  color: #323233;
+  font-weight: 500;
+}
+
+.first-student-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background-color: #ff976a;
+  color: white;
+  font-size: 10px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
 .reason-section {
   background: white;
   border-radius: 16px;
@@ -509,12 +590,66 @@ const goBack = () => {
 }
 
 .reason-input {
-  flex: 1;
+  flex-shrink: 0;
 }
 
 .reason-input :deep(.van-field) {
   background: #f7f8fa;
   border-radius: 8px;
+}
+
+.reason-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.roles-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.roles-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-name {
+  font-size: 14px;
+  color: #323233;
+  flex-shrink: 0;
+  width: 80px;
+}
+
+.role-input {
+  flex: 1;
+}
+
+.role-input :deep(.van-field) {
+  background: #f7f8fa;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+
+.role-input :deep(.van-field__control) {
+  font-size: 14px;
 }
 
 /* 第二步选题样式 */
