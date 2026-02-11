@@ -386,7 +386,6 @@ onMounted(async () => {
 }
 
 :deep(.van-button--primary) {
-  background: #1989fa;
   border: none;
 }
 </style>

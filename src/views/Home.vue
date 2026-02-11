@@ -241,7 +241,7 @@ onMounted(async () => {
 }
 
 :deep(.van-nav-bar) {
-  background: linear-gradient(to right, #1989fa, #07c160);
+  background: #1989fa; /* 改为纯蓝色，避免渐变 */
 }
 
 :deep(.van-nav-bar__title) {

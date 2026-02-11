@@ -207,4 +207,13 @@ onMounted(() => {
   word-break: break-all;
   text-align: left;
 }
+
+:deep(.van-nav-bar) {
+  background: #1989fa; /* 统一为纯蓝色 */
+}
+
+:deep(.van-nav-bar__title) {
+  color: white;
+  font-weight: 500;
+}
 </style>
