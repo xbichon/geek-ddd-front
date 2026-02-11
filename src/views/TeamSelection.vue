@@ -34,6 +34,26 @@ const fetchUnselectedStudents = async () => {
   }
 }
 
+// 检查用户是否已经选题
+const checkHasSelected = async () => {
+  try {
+    // 从本地存储中获取选题状态
+    const hasSelectedStr = localStorage.getItem('hasSelected')
+    const hasSelected = hasSelectedStr === 'true'
+    
+    if (hasSelected) {
+      // 已经选题，直接跳转到成功页面
+      router.push('/success')
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error('检查选题状态失败:', error)
+    showToast('检查选题状态失败')
+    return false
+  }
+}
+
 // 切换选择状态
 const toggleSelection = (studentId: number) => {
   const index = selectedTeammates.value.indexOf(studentId)
@@ -57,6 +77,7 @@ const isSelected = (studentId: number) => {
 
 // 页面初始化逻辑
 onMounted(() => {
+  checkHasSelected()
   fetchUnselectedStudents()
 })
 
