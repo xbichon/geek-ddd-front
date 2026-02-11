@@ -93,12 +93,6 @@ const goBack = () => {
     />
     
     <div class="content">
-      <!-- 步骤指示器 -->
-      <van-steps :active="currentStep - 1" active-color="#409eff" class="steps">
-        <van-step>选择队友</van-step>
-        <van-step>下一步</van-step>
-      </van-steps>
-      
       <!-- 第一步：选择队友 -->
       <div v-if="currentStep === 1" class="step-content">
         <van-cell-group inset>
@@ -129,14 +123,6 @@ const goBack = () => {
         </van-cell-group>
         
         <div class="actions">
-          <van-button 
-            plain 
-            type="primary" 
-            block 
-            @click="goBack"
-          >
-            返回首页
-          </van-button>
           <van-button 
             type="primary" 
             block 
@@ -189,13 +175,6 @@ const goBack = () => {
 
 .content {
   padding: 60px 16px 20px;
-}
-
-.steps {
-  margin-bottom: 30px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
 }
 
 .step-content {
