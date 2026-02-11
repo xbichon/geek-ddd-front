@@ -39,7 +39,7 @@ const logout = () => {
 // 检查用户是否已经选题
 const checkHasSelected = async () => {
   try {
-    const result = await request.get('/internship/thesis-selection/has-selected') as HasSelectedResponse
+    const result = await request.get('/internship/thesis/checkSelectionStatus') as HasSelectedResponse
     if (result.code === 200 && result.data === true) {
       // 已经选题，直接跳转到成功页面
       router.push('/success')

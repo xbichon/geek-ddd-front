@@ -64,7 +64,7 @@ const logout = () => {
 // 检查用户是否已经选题
 const checkHasSelected = async () => {
   try {
-    const result = await request.get('/internship/thesis-selection/has-selected') as HasSelectedResponse
+    const result = await request.get('/internship/thesis/checkSelectionStatus') as HasSelectedResponse
     if (result.code === 200 && result.data === true) {
       // 已经选题，直接跳转到成功页面
       router.push('/success')
@@ -81,7 +81,7 @@ const checkHasSelected = async () => {
 const fetchPapers = async () => {
   loading.value = true
   try {
-    const result = await request.get('/internship/thesis') as ThesisResponse
+    const result = await request.get('/internship/thesis/list') as ThesisResponse
     if (result.code === 200) {
       papers.value = result.data
       // 默认选中第一个可用的题目
@@ -127,30 +127,39 @@ const submitSelection = async () => {
     return
   }
 
-  submitting.value = true
-  showLoadingToast({
-    message: '提交中...',
-    forbidClick: true,
-  })
-  
-  try {
-    const result = await request.post('/internship/thesis-selection', {
-      thesisId: selectedPaperId.value,
-      achievementType: selectedAchievementType.value,
-      selectionType: 'INDIVIDUAL'
-    }) as { code: number; message: string }
+  const paper = papers.value.find(p => p.id === selectedPaperId.value)
 
-    if (result.code === 200) {
-      router.push('/success')
-    } else {
-      showToast(result.message || '选题失败')
+  showConfirmDialog({
+    title: '确认选题',
+    message: `题目：${paper?.title}\n成果形式：${selectedAchievementType.value}\n\n确认提交选题吗？`,
+  }).then(async () => {
+    submitting.value = true
+    showLoadingToast({
+      message: '提交中...',
+      forbidClick: true,
+    })
+
+    try {
+      const result = await request.post('/internship/thesis/applySelection', {
+        thesisId: selectedPaperId.value,
+        achievementType: selectedAchievementType.value,
+        selectionType: 'INDIVIDUAL'
+      }) as { code: number; message: string }
+
+      if (result.code === 200) {
+        router.push('/success')
+      } else {
+        showToast(result.message || '选题失败')
+      }
+    } catch (error) {
+      showToast('网络错误，请稍后重试')
+    } finally {
+      submitting.value = false
+      closeToast()
     }
-  } catch (error) {
-    showToast('网络错误，请稍后重试')
-  } finally {
-    submitting.value = false
-    closeToast()
-  }
+  }).catch(() => {
+    // 用户取消，不做任何操作
+  })
 }
 
 onMounted(async () => {
@@ -205,9 +214,10 @@ onMounted(async () => {
             <div class="paper-info">
               <div class="paper-title">{{ paper.title }}</div>
               <div class="paper-stats">
-                <van-tag 
-                  :type="paper.currentSelections >= paper.maxSelections ? 'danger' : 'default'"
+                <van-tag
+                  :class="{ 'tag-full': paper.currentSelections >= paper.maxSelections }"
                   size="medium"
+                  class="count-tag"
                 >
                   {{ paper.currentSelections }}/{{ paper.maxSelections }} 人
                 </van-tag>
@@ -330,6 +340,16 @@ onMounted(async () => {
 .paper-stats {
   display: flex;
   align-items: center;
+}
+
+.count-tag {
+  background-color: #07c160 !important;
+  color: white !important;
+}
+
+.count-tag.tag-full {
+  background-color: #c8c9cc !important;
+  color: white !important;
 }
 
 .paper-radio {

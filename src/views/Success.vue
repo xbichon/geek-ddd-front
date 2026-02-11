@@ -43,7 +43,7 @@ const logout = () => {
 const fetchSelectionDetail = async () => {
   loading.value = true
   try {
-    const result = await request.get('/internship/thesis-selection/detail') as SelectionDetailResponse
+    const result = await request.get('/internship/thesis/getSelectionDetail') as SelectionDetailResponse
     if (result.code === 200) {
       detail.value = result.data
     }

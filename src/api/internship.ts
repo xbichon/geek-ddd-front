@@ -12,5 +12,5 @@ export interface UnselectedStudentsResult {
 }
 
 export function getUnselectedStudents(): Promise<UnselectedStudentsResult> {
-  return request.get('/internship/thesis-selection/unselected-students')
+  return request.get('/internship/thesis/unselectedStudent')
 }
