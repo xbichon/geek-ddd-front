@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import request from '@/utils/request'
+
+const router = useRouter()
 
 interface Paper {
   id: number
@@ -51,8 +54,12 @@ const selectPaper = (paper: Paper) => {
 }
 
 const submitSelection = async () => {
-  if (!selectedPaperId.value || !selectedAchievementType.value) {
-    alert('请选择论文和成果形式')
+  if (!selectedPaperId.value) {
+    alert('请选择选题')
+    return
+  }
+  if (!selectedAchievementType.value) {
+    alert('请选择成果形式')
     return
   }
 
@@ -125,15 +132,15 @@ onMounted(() => {
           <span>{{ type }}</span>
         </label>
       </div>
-
-      <button
-        class="submit-btn"
-        :disabled="submitting"
-        @click="submitSelection"
-      >
-        {{ submitting ? '提交中...' : '确认选题' }}
-      </button>
     </div>
+
+    <button
+      class="submit-btn"
+      :disabled="submitting"
+      @click="submitSelection"
+    >
+      {{ submitting ? '提交中...' : '确认选题' }}
+    </button>
   </div>
 </template>
 
@@ -141,7 +148,8 @@ onMounted(() => {
 .paper-selection-page {
   max-width: 600px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 40px 20px 100px;
+  position: relative;
 }
 
 h2 {
@@ -213,8 +221,10 @@ h2 {
 }
 
 .submit-btn {
-  margin-top: 30px;
-  padding: 10px 40px;
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  padding: 12px 40px;
   font-size: 14px;
   cursor: pointer;
 }
