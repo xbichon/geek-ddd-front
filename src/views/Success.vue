@@ -118,7 +118,7 @@ onMounted(() => {
             </div>
           </div>
           
-          <div class="detail-item">
+          <div v-if="!detail?.isGroup" class="detail-item">
             <div class="detail-label">
               <van-icon name="user-o" color="#1989fa" />
               <span>学生姓名：</span>
@@ -143,37 +143,34 @@ onMounted(() => {
           </div>
 
           <!-- 团队信息（仅组队时显示） -->
-          <div v-if="detail?.isGroup && detail?.teamInfo" class="team-section">
-            <div class="team-reason">
-              <div class="team-reason-label">
-                <van-icon name="edit" color="#1989fa" />
-                <span>组队原因：</span>
-              </div>
-              <div class="team-reason-value">{{ detail.teamInfo.reason || '暂无' }}</div>
-            </div>
-            
-            <div class="team-members">
-              <div class="team-members-label">
+          
+                      <div v-if="detail?.isGroup && detail?.teamInfo" class="detail-item">
+              <div class="detail-label">
                 <van-icon name="friends-o" color="#1989fa" />
                 <span>团队成员：</span>
               </div>
-              <div class="members-list">
+              <div class="detail-value">
                 <div 
                   v-for="(member, index) in detail.teamInfo.members" 
                   :key="index"
                   class="member-item"
                 >
-                  <div class="member-name">
+                  <div>
                     <van-icon name="user-circle-o" color="#646566" />
                     <span>{{ member.name }}</span>
-                  </div>
-                  <div class="member-responsibility">
-                    <van-tag type="primary" size="medium">职责</van-tag>
-                    <span class="responsibility-text">{{ member.responsibility || '暂无' }}</span>
+                    <span class="responsibility-text">{{ ' ( '+(member.responsibility || '暂无')+' )' }}</span>
                   </div>
                 </div>
               </div>
             </div>
+            <div v-if="detail?.isGroup && detail?.teamInfo" class="detail-item">
+
+            <div class="detail-label">
+                <van-icon name="edit" color="#1989fa" />
+                <span>组队原因：</span>
+    </div>
+              <div class="detail-value">{{ detail.teamInfo.reason || '暂无' }}</div>
+
           </div>
         </div>
       </div>
