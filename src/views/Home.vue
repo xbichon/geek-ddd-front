@@ -26,8 +26,9 @@ const logout = () => {
     title: '确认退出',
     message: '确定要退出系统吗？',
   }).then(() => {
-    // 清除本地存储的token
+    // 清除本地存储的token和hasSelected
     localStorage.removeItem('token')
+    localStorage.removeItem('hasSelected')
     // 跳转到登录页面
     router.push('/login')
     showToast('已退出系统')
@@ -39,8 +40,11 @@ const logout = () => {
 // 检查用户是否已经选题
 const checkHasSelected = async () => {
   try {
-    const result = await request.get('/internship/thesis/checkSelectionStatus') as HasSelectedResponse
-    if (result.code === 200 && result.data === true) {
+    // 从本地存储中获取选题状态
+    const hasSelectedStr = localStorage.getItem('hasSelected')
+    const hasSelected = hasSelectedStr === 'true'
+    
+    if (hasSelected) {
       // 已经选题，直接跳转到成功页面
       router.push('/success')
       return true

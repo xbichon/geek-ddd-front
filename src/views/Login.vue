@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast } from 'vant'
 import { login, getCaptcha } from '@/api/login'
+import request from '@/utils/request'
 
 const router = useRouter()
 
@@ -58,7 +59,29 @@ const onSubmit = async () => {
 
     if (result.code === 200) {
       localStorage.setItem('token', result.data)
-      router.push('/')
+      
+      // 登录成功后，再检查选题状态
+      try {
+        const selectionResult = await request.get('/internship/thesis/checkSelectionStatus') as { code: number; data: boolean; message: string }
+        if (selectionResult.code === 200) {
+          // 存储到本地存储
+          localStorage.setItem('hasSelected', String(selectionResult.data))
+          
+          // 根据选题状态跳转
+          if (selectionResult.data) {
+            router.push('/success')
+          } else {
+            router.push('/')
+          }
+        } else {
+          // 如果选题状态检查失败，默认跳转到首页
+          router.push('/')
+        }
+      } catch (selectionError) {
+        console.error('检查选题状态失败:', selectionError)
+        showToast('检查选题状态失败')
+        router.push('/')
+      }
     } else {
       showToast(result.message || '登录失败')
       fetchCaptcha()

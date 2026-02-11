@@ -30,8 +30,9 @@ const logout = () => {
     title: '确认退出',
     message: '确定要退出系统吗？',
   }).then(() => {
-    // 清除本地存储的token
+    // 清除本地存储的token和hasSelected
     localStorage.removeItem('token')
+    localStorage.removeItem('hasSelected')
     // 跳转到登录页面
     router.push('/login')
     showToast('已退出系统')
