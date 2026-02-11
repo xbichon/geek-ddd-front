@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { showToast, showConfirmDialog } from 'vant'
 import request from '@/utils/request'
 
 const router = useRouter()
@@ -23,6 +24,22 @@ interface SelectionDetailResponse {
 const detail = ref<SelectionDetail | null>(null)
 const loading = ref(false)
 
+// 退出系统
+const logout = () => {
+  showConfirmDialog({
+    title: '确认退出',
+    message: '确定要退出系统吗？',
+  }).then(() => {
+    // 清除本地存储的token
+    localStorage.removeItem('token')
+    // 跳转到登录页面
+    router.push('/login')
+    showToast('已退出系统')
+  }).catch(() => {
+    // 取消退出
+  })
+}
+
 const fetchSelectionDetail = async () => {
   loading.value = true
   try {
@@ -30,13 +47,11 @@ const fetchSelectionDetail = async () => {
     if (result.code === 200) {
       detail.value = result.data
     }
+  } catch (error) {
+    showToast('获取选题详情失败')
   } finally {
     loading.value = false
   }
-}
-
-const goToHome = () => {
-  router.push('/')
 }
 
 onMounted(() => {
@@ -46,34 +61,76 @@ onMounted(() => {
 
 <template>
   <div class="success-page">
-    <h2>选题成功</h2>
-
-    <div v-if="loading" class="loading">加载中...</div>
-
-    <div v-else-if="detail" class="info-card">
-      <div class="info-item">
-        <span class="label">选题方向：</span>
-        <span class="value">{{ detail.thesisTitle }}</span>
-      </div>
-
-      <div class="info-item">
-        <span class="label">是否结组：</span>
-        <span class="value">{{ detail.isGroup ? '组队' : '个人' }}</span>
-      </div>
-
-      <div class="info-item">
-        <span class="label">学生姓名：</span>
-        <span class="value">{{ detail.studentName }}</span>
-      </div>
-
-      <div class="info-item">
-        <span class="label">成果形式：</span>
-        <span class="value">{{ detail.achievementType }}</span>
-      </div>
-
-      <div class="info-item">
-        <span class="label">指导老师：</span>
-        <span class="value">{{ detail.advisorName }}</span>
+    <van-nav-bar
+      title="选题成功"
+      fixed
+    >
+      <template #right>
+        <van-button 
+          type="primary" 
+          size="small" 
+          plain
+          @click="logout"
+        >
+          退出
+        </van-button>
+      </template>
+    </van-nav-bar>
+    
+    <div class="content">
+      <van-loading v-if="loading" vertical class="loading">
+        加载中...
+      </van-loading>
+      
+      <div v-else class="detail-container">
+        <!-- 选题详情 -->
+        <div class="detail-card">
+          <h3 class="detail-title">选题详情</h3>
+          
+          <div class="detail-item">
+            <div class="detail-label">
+              <van-icon name="underway-o" color="#1989fa" />
+              <span>选题方向：</span>
+            </div>
+            <div class="detail-value">{{ detail?.thesisTitle || '暂无数据' }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">
+              <van-icon name="friends-o" color="#1989fa" />
+              <span>选题方式：</span>
+            </div>
+            <div class="detail-value">
+              <van-tag :type="detail?.isGroup ? 'primary' : 'success'">
+                {{ detail?.isGroup ? '组队' : '个人' }}
+              </van-tag>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">
+              <van-icon name="user-o" color="#1989fa" />
+              <span>学生姓名：</span>
+            </div>
+            <div class="detail-value">{{ detail?.studentName || '暂无数据' }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">
+              <van-icon name="bookmark-o" color="#1989fa" />
+              <span>成果形式：</span>
+            </div>
+            <div class="detail-value">{{ detail?.achievementType || '暂无数据' }}</div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">
+              <van-icon name="manager-o" color="#1989fa" />
+              <span>指导老师：</span>
+            </div>
+            <div class="detail-value">{{ detail?.advisorName || '暂无数据' }}</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -81,55 +138,73 @@ onMounted(() => {
 
 <style scoped>
 .success-page {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 60px 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.info-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 30px;
-  margin-bottom: 40px;
-}
-
-.info-item {
-  display: flex;
-  padding: 15px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.info-item:last-child {
-  border-bottom: none;
-}
-
-.label {
-  width: 100px;
-  color: #666;
-  flex-shrink: 0;
-}
-
-.value {
-  flex: 1;
-  color: #333;
-}
-
-.back-btn {
-  display: block;
-  margin: 0 auto;
-  padding: 12px 40px;
-  font-size: 14px;
-  cursor: pointer;
+.content {
+  padding: 60px 16px 20px;
 }
 
 .loading {
   text-align: center;
-  padding: 40px;
-  color: #999;
+  padding: 60px 20px;
+}
+
+.detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.detail-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #323233;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  display: flex;
+  align-items: flex-start;
+  font-size: 16px;
+  color: #646566;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.detail-label .van-icon {
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+.detail-value {
+  font-size: 16px;
+  color: #323233;
+  font-weight: 500;
+  flex: 1;
+  line-height: 1.5;
+  word-break: break-all;
+  text-align: left;
 }
 </style>
