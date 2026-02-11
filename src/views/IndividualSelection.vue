@@ -95,8 +95,10 @@ const fetchPapers = async () => {
         )
         if (firstAvailablePaper) {
           selectedPaperId.value = firstAvailablePaper.id
-          // 默认选择第一个成果形式
-          if (firstAvailablePaper.achievementTypes.length > 0) {
+          // 默认选择报告成果形式，如果没有则选择第一个
+          if (firstAvailablePaper.achievementTypes.includes('报告')) {
+            selectedAchievementType.value = '报告'
+          } else if (firstAvailablePaper.achievementTypes.length > 0) {
             selectedAchievementType.value = firstAvailablePaper.achievementTypes[0] || ''
           }
         }
@@ -113,8 +115,10 @@ const selectPaper = (paper: Paper) => {
     return
   }
   selectedPaperId.value = paper.id
-  // 切换题目时，默认选择第一个成果形式
-  if (paper.achievementTypes.length > 0) {
+  // 切换题目时，默认选择报告成果形式，如果没有则选择第一个
+  if (paper.achievementTypes.includes('报告')) {
+    selectedAchievementType.value = '报告'
+  } else if (paper.achievementTypes.length > 0) {
     selectedAchievementType.value = paper.achievementTypes[0] || ''
   } else {
     selectedAchievementType.value = ''
@@ -180,7 +184,7 @@ onMounted(async () => {
   <div class="individual-selection-page">
     <van-nav-bar
       title="个人选题"
-      left-text="返回"
+      left-text="返回首页"
       left-arrow
       @click-left="goBack"
       fixed

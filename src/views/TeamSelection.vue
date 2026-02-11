@@ -310,17 +310,46 @@ const prevStep = () => {
 const goBack = () => {
   router.push('/')
 }
+
+// 退出系统
+const logout = () => {
+  showConfirmDialog({
+    title: '确认退出',
+    message: '确定要退出系统吗？',
+  }).then(() => {
+    // 清除本地存储的token和hasSelected
+    localStorage.removeItem('token')
+    localStorage.removeItem('hasSelected')
+    // 跳转到登录页面
+    router.push('/login')
+    showToast('已退出系统')
+  }).catch(() => {
+    // 取消退出
+  })
+}
+
 </script>
 
 <template>
   <div class="team-selection-page">
     <van-nav-bar
       title="组队选题"
-      left-text="返回"
+      left-text="返回首页"
       left-arrow
       @click-left="goBack"
       fixed
-    />
+    >
+      <template #right>
+        <van-button 
+          type="primary" 
+          size="small" 
+          plain
+          @click="logout"
+        >
+          退出
+        </van-button>
+      </template>
+    </van-nav-bar>
     
     <div class="content">
       <!-- 第一步：选择队友 -->
@@ -860,5 +889,22 @@ const goBack = () => {
 .submit-btn {
   flex: 2;
   margin-top: 0;
+}
+
+:deep(.van-nav-bar) {
+  background: #1989fa; /* 改为纯蓝色，与个人选题保持一致 */
+}
+
+:deep(.van-nav-bar__title) {
+  color: white;
+  font-weight: 500;
+}
+
+:deep(.van-nav-bar__text) {
+  color: white;
+}
+
+:deep(.van-button--primary) {
+  border: none;
 }
 </style>
