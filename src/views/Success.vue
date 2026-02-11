@@ -6,13 +6,23 @@ import request from '@/utils/request'
 
 const router = useRouter()
 
+interface TeamMember {
+  name: string
+  responsibility: string
+}
+
+interface TeamInfo {
+  reason: string
+  members: TeamMember[]
+}
+
 interface SelectionDetail {
   studentName: string
   isGroup: boolean
   advisorName: string
   achievementType: string
   thesisTitle: string
-  teamInfo: null | string
+  teamInfo: TeamInfo | null
 }
 
 interface SelectionDetailResponse {
@@ -84,7 +94,7 @@ onMounted(() => {
       </van-loading>
       
       <div v-else class="detail-container">
-        <!-- 选题详情 -->
+        <!-- 选题详情卡片（包含团队信息） -->
         <div class="detail-card">
           <h3 class="detail-title">选题详情</h3>
           
@@ -130,6 +140,40 @@ onMounted(() => {
               <span>指导老师：</span>
             </div>
             <div class="detail-value">{{ detail?.advisorName || '暂无数据' }}</div>
+          </div>
+
+          <!-- 团队信息（仅组队时显示） -->
+          <div v-if="detail?.isGroup && detail?.teamInfo" class="team-section">
+            <div class="team-reason">
+              <div class="team-reason-label">
+                <van-icon name="edit" color="#1989fa" />
+                <span>组队原因：</span>
+              </div>
+              <div class="team-reason-value">{{ detail.teamInfo.reason || '暂无' }}</div>
+            </div>
+            
+            <div class="team-members">
+              <div class="team-members-label">
+                <van-icon name="friends-o" color="#1989fa" />
+                <span>团队成员：</span>
+              </div>
+              <div class="members-list">
+                <div 
+                  v-for="(member, index) in detail.teamInfo.members" 
+                  :key="index"
+                  class="member-item"
+                >
+                  <div class="member-name">
+                    <van-icon name="user-circle-o" color="#646566" />
+                    <span>{{ member.name }}</span>
+                  </div>
+                  <div class="member-responsibility">
+                    <van-tag type="primary" size="medium">职责</van-tag>
+                    <span class="responsibility-text">{{ member.responsibility || '暂无' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -207,6 +251,102 @@ onMounted(() => {
   line-height: 1.5;
   word-break: break-all;
   text-align: left;
+}
+
+/* 团队信息样式（卡片内部分区） */
+.team-section {
+  margin-top: 25px;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+  margin: 20px 0;
+}
+
+.team-subtitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #323233;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.team-reason {
+  margin-bottom: 25px;
+}
+
+.team-reason-label {
+  display: flex;
+  align-items: flex-start;
+  font-size: 16px;
+  color: #646566;
+  margin-bottom: 12px;
+}
+
+.team-reason-label .van-icon {
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+.team-reason-value {
+  font-size: 16px;
+  color: #323233;
+  font-weight: 500;
+  line-height: 1.5;
+  padding-left: 24px;
+  word-break: break-all;
+}
+
+.team-members-label {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #646566;
+  margin-bottom: 15px;
+}
+
+.team-members-label .van-icon {
+  margin-right: 8px;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.member-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid #e9ecef;
+}
+
+.member-name {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #323233;
+  margin-bottom: 10px;
+}
+
+.member-name .van-icon {
+  margin-right: 8px;
+}
+
+.member-responsibility {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.responsibility-text {
+  font-size: 15px;
+  color: #666;
+  flex: 1;
+  word-break: break-all;
 }
 
 :deep(.van-nav-bar) {

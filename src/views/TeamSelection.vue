@@ -230,6 +230,12 @@ const submitSelection = async () => {
     return
   }
 
+  // 构造团队成员数据
+  const teamMembers = selectedTeammates.value.map(studentId => ({
+    studentId: studentId,
+    responsibility: teammateRoles.value[studentId] || ''
+  }))
+
   const paper = papers.value.find(p => p.id === selectedPaperId.value)
 
   showConfirmDialog({
@@ -246,8 +252,11 @@ const submitSelection = async () => {
       const result = await request.post('/internship/thesis/applySelection', {
         thesisId: selectedPaperId.value,
         achievementType: selectedAchievementType.value,
-        selectionType: 'TEAM',
-        teamMemberIds: selectedTeammates.value
+        selectionType: 'GROUP',
+        teamApplication: {
+          reason: teamReason.value.trim(),
+          members: teamMembers
+        }
       }) as { code: number; message: string }
 
       if (result.code === 200) {
