@@ -148,7 +148,7 @@ const submitSelection = async () => {
     })
 
     try {
-      const result = await request.post('/internship/thesis/applySelection', {
+      const result = await http.post('internship/thesis/applySelection', {
         thesisId: selectedPaperId.value,
         achievementType: selectedAchievementType.value,
         selectionType: 'INDIVIDUAL'
