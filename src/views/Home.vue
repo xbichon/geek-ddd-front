@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
-import request from '@/utils/request'
 
 const router = useRouter()
 
