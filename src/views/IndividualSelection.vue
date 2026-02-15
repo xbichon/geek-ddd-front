@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast, showConfirmDialog } from 'vant'
-import request from '@/utils/request'
+import {http} from '@/utils/request'
 
 const router = useRouter()
 
@@ -85,7 +85,7 @@ const checkHasSelected = async () => {
 const fetchPapers = async () => {
   loading.value = true
   try {
-    const result = await request.get('/internship/thesis/list') as ThesisResponse
+    const result = await http.get('internship/thesis/list') as ThesisResponse
     if (result.code === 200) {
       papers.value = result.data
       // 默认选中第一个可用的题目

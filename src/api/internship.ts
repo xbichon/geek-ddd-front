@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import {http} from '@/utils/request'
 
 export interface Student {
   id: number
@@ -12,5 +12,5 @@ export interface UnselectedStudentsResult {
 }
 
 export function getUnselectedStudents(): Promise<UnselectedStudentsResult> {
-  return request.get('/internship/thesis/unselectedStudent')
+  return http.get('internship/thesis/unselectedStudent')
 }

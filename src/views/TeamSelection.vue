@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast, showConfirmDialog } from 'vant'
 import { getUnselectedStudents, type Student } from '@/api/internship'
-import request from '@/utils/request'
+import {http} from '@/utils/request'
 
 const router = useRouter()
 
@@ -178,7 +178,7 @@ const isSelected = (studentId: number) => {
 const fetchPapers = async () => {
   loading.value = true
   try {
-    const result = await request.get('/internship/thesis/list') as ThesisResponse
+    const result = await http.get('internship/thesis/list') as ThesisResponse
     if (result.code === 200) {
       papers.value = result.data
       // 默认选中第一个可用的题目
@@ -253,7 +253,7 @@ const submitSelection = async () => {
     })
 
     try {
-      const result = await request.post('/internship/thesis/applySelection', {
+      const result = await http.post('internship/thesis/applySelection', {
         thesisId: selectedPaperId.value,
         achievementType: selectedAchievementType.value,
         selectionType: 'GROUP',

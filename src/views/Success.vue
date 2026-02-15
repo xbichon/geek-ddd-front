@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
-import request from '@/utils/request'
+import {http} from '@/utils/request'
 
 const router = useRouter()
 
@@ -54,7 +54,7 @@ const logout = () => {
 const fetchSelectionDetail = async () => {
   loading.value = true
   try {
-    const result = await request.get('/internship/thesis/getSelectionDetail') as SelectionDetailResponse
+    const result = await http.get('internship/thesis/getSelectionDetail') as SelectionDetailResponse
     if (result.code === 200) {
       detail.value = result.data
     }
