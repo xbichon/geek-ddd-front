@@ -1,30 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast, showConfirmDialog } from 'vant'
-import {http} from '@/utils/request'
+import { getThesisList, applySelection, type Paper } from '@/api/internship'
 
 const router = useRouter()
-
-interface Paper {
-  id: number
-  title: string
-  maxSelections: number
-  currentSelections: number
-  achievementTypes: string[]
-}
-
-interface ThesisResponse {
-  code: number
-  data: Paper[]
-  message: string
-}
-
-interface HasSelectedResponse {
-  code: number
-  data: boolean
-  message: string
-}
 
 const papers = ref<Paper[]>([])
 const selectedPaperId = ref<number | null>(null)
@@ -85,7 +65,7 @@ const checkHasSelected = async () => {
 const fetchPapers = async () => {
   loading.value = true
   try {
-    const result = await http.get('internship/thesis/list') as ThesisResponse
+    const result = await getThesisList()
     if (result.code === 200) {
       papers.value = result.data
       // 默认选中第一个可用的题目
@@ -148,11 +128,11 @@ const submitSelection = async () => {
     })
 
     try {
-      const result = await http.post('internship/thesis/applySelection', {
-        thesisId: selectedPaperId.value,
+      const result = await applySelection({
+        thesisId: selectedPaperId.value!,
         achievementType: selectedAchievementType.value,
         selectionType: 'INDIVIDUAL'
-      }) as { code: number; message: string }
+      })
 
       if (result.code === 200) {
         router.push('/success')

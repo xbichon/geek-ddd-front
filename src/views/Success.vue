@@ -2,34 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
-import {http} from '@/utils/request'
+import { getSelectionDetail, type SelectionDetail } from '@/api/internship'
 
 const router = useRouter()
-
-interface TeamMember {
-  name: string
-  responsibility: string
-}
-
-interface TeamInfo {
-  reason: string
-  members: TeamMember[]
-}
-
-interface SelectionDetail {
-  studentName: string
-  isGroup: boolean
-  advisorName: string
-  achievementType: string
-  thesisTitle: string
-  teamInfo: TeamInfo | null
-}
-
-interface SelectionDetailResponse {
-  code: number
-  data: SelectionDetail
-  message: string
-}
 
 const detail = ref<SelectionDetail | null>(null)
 const loading = ref(false)
@@ -54,7 +29,7 @@ const logout = () => {
 const fetchSelectionDetail = async () => {
   loading.value = true
   try {
-    const result = await http.get('internship/thesis/getSelectionDetail') as SelectionDetailResponse
+    const result = await getSelectionDetail()
     if (result.code === 200) {
       detail.value = result.data
     }

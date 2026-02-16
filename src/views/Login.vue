@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast } from 'vant'
 import { login, getCaptcha } from '@/api/login'
-import {auth,http} from '@/utils/request'
+import { checkSelectionStatus } from '@/api/internship'
 
 const router = useRouter()
 
@@ -62,7 +62,7 @@ const onSubmit = async () => {
       
       // 登录成功后，再检查选题状态
       try {
-        const selectionResult = await http.get('/internship/thesis/checkSelectionStatus') as { code: number; data: boolean; message: string }
+        const selectionResult = await checkSelectionStatus()
         if (selectionResult.code === 200) {
           // 存储到本地存储
           localStorage.setItem('hasSelected', String(selectionResult.data))
