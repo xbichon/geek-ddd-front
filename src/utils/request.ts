@@ -48,11 +48,11 @@ export class RequestFactory {
 }
 
 const httpFactory = new RequestFactory({
-  baseURL: import.meta.env.VITE_API_BASE_URL+'api/' || 'http://localhost:8091/api'
+  baseURL: import.meta.env.VITE_API_BASE_URL+'/student' || '/'
 })
 
 const authFactory = new RequestFactory({
-  baseURL: import.meta.env.VITE_API_BASE_URL+'security/' || 'http://localhost:8091/api'
+  baseURL: import.meta.env.VITE_API_BASE_URL+'/security' || '/'
 })
 
 
