@@ -6,7 +6,7 @@ import TeamSelection from '@/views/TeamSelection.vue'
 import Success from '@/views/Success.vue'
 
 const router = createRouter({
-  history: createWebHistory('/front/'),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',

@@ -17,4 +17,15 @@ export default defineConfig({
     },
   },
   assetsInclude: ['**/*.woff', '**/*.woff2', '**/*.ttf', '**/*.eot'],
+  // 开发服务器配置
+  server: {
+    port: 3000,
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+    }
+  }
 })
