@@ -5,8 +5,6 @@ import IndividualSelection from '@/views/IndividualSelection.vue'
 import TeamSelection from '@/views/TeamSelection.vue'
 import Success from '@/views/Success.vue'
 
-console.log('Router initialized with base URL:', import.meta.env.BASE_URL)
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
