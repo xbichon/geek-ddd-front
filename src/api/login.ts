@@ -1,4 +1,4 @@
-import {auth} from '@/utils/request'
+import {http} from '@/utils/request'
 
 export interface LoginParams {
   userType: string
@@ -26,9 +26,9 @@ export interface CaptchaResult {
 }
 
 export function login(params: LoginParams): Promise<LoginResult> {
-  return auth.post('auth/login', params)
+  return http.post('auth/login', params)
 }
 
 export function getCaptcha(): Promise<CaptchaResult> {
-  return auth.get('auth/captcha')
+  return http.get('auth/captcha')
 }

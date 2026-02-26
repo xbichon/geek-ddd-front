@@ -51,11 +51,5 @@ const httpFactory = new RequestFactory({
   baseURL: import.meta.env.VITE_API_BASE_URL+'/student' || '/'
 })
 
-const authFactory = new RequestFactory({
-  baseURL: import.meta.env.VITE_API_BASE_URL+'/security' || '/'
-})
-
-
 
 export const http: AxiosInstance = httpFactory.create()
-export const auth: AxiosInstance = authFactory.create()
